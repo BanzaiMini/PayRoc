@@ -1,0 +1,35 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome to Short URL</h1>
+</div>
+<div>
+    <p>Fed up with long URLs?</p>
+    <p>Want to put simple URLs into your paper media?</p>
+    <p>Use Short URL</p>
+</div>
+<div>
+    <form method="post">
+        <div asp-validation-summary="All"></div>
+        <div class="mb-3">
+            <label class="form-label">URL</label>
+            <input type="text" asp-for="ShortURL.URL" class="form-control" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Key</label>
+            <input type="text" asp-for="ShortURL.Key" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-success float-right">Submit</button>
+    </form>
+    @if (@Model.ShortURL != null)
+    {
+        <div>
+            <p>Your new Short URL for @Model.ShortURL.URL is:</p>
+            <p>@Model.ShortURL.GeneratedURL</p>
+        </div>
+    }
+</div>
