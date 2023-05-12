@@ -14,7 +14,7 @@
 </div>
 <div>
     <form method="post">
-        <div asp-validation-summary="All"></div>
+        <div class="font-weight-bold" asp-validation-summary="All"></div>
         <div class="mb-3">
             <label class="form-label">URL</label>
             <input type="text" asp-for="ShortURL.URL" class="form-control" />
@@ -23,7 +23,7 @@
             <label class="form-label">Key</label>
             <input type="text" asp-for="ShortURL.Key" class="form-control" />
         </div>
-        <button type="submit" class="btn btn-success float-right">Submit</button>
+        <button type="submit" class="btn btn-success float-right">Generate Short URL</button>
     </form>
     @if (@Model.ShortURL != null && @Model.ShortURL.GeneratedURL != null)
     {
