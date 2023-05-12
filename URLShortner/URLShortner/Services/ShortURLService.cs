@@ -1,4 +1,6 @@
-﻿using URLShortner.Data.Models;
+﻿using System;
+using URLShortner.Data;
+using URLShortner.Data.Models;
 
 namespace URLShortner.Services
 {
@@ -8,22 +10,58 @@ namespace URLShortner.Services
     public class ShortURLService : IShortURLService
     {
         /// <summary>
-        /// Temporary in memory implementation for incremental testing
+        /// DB Context for access ot the persisten store
         /// </summary>
-        private static Dictionary<string,string> s_ShortURLMap = new Dictionary<string,string>();
+        private readonly URLShortnerDbContext _dbContext;
+
+        /// <summary>
+        /// Logger
+        /// </summary>
+        private readonly ILogger<ShortURLService> _logger;
+
+        /// <summary>
+        /// Construct initialising the new db context
+        /// </summary>
+        /// <param name="dbContext">DB Context initiaise via the framework</param>
+        public ShortURLService(URLShortnerDbContext     dbContext,
+                               ILogger<ShortURLService> logger)
+        {
+            _dbContext = dbContext;
+            _logger = logger;   
+        }
+
         public async Task<bool> KeyExists(string key)
         {
-            return s_ShortURLMap.ContainsKey(key);
+            bool result = false;
+            try
+            {
+                result = _dbContext.ShortURLs.Any(s => s.Key == key);
+            }
+            catch(Exception e)
+            {
+                _logger.LogError("Failed Checking URL", e);
+            }
+
+            return result;
         }
         public async Task<bool> AddURL(ShortURL URL)
         {
             bool Added = false;
 
-            if(!(await KeyExists(URL.Key)))
-            {
-                s_ShortURLMap[URL.Key] = URL.URL;
-                Added = true;
+            try
+            { 
+                if(!(await KeyExists(URL.Key)))
+                {
+                    var addedEntity = _dbContext.ShortURLs.Add(URL);
+                    _dbContext.SaveChanges();
+                    Added = true;
+                }
             }
+            catch (Exception e)
+            {
+                _logger.LogError("Failed Adding URL", e);
+            }
+
 
             return Added;
         }
@@ -32,25 +70,40 @@ namespace URLShortner.Services
         {
             ShortURL result = null;
 
-            s_ShortURLMap.TryGetValue(key, out var url);
-
-            if (url != null)
+            try
             {
-                result = new ShortURL
-                { 
-                  Key=key,
-                  URL = url
-                };
-
+                result = _dbContext.ShortURLs.FirstOrDefault(s => s.Key == key);
             }
-            
+            catch (Exception e)
+            {
+                _logger.LogError("Failed Getting URL", e);
+            }
 
             return result;
         }
 
         public async Task<bool> RemoveURL(string key)
         {
-            return s_ShortURLMap.Remove(key);
+            bool result = false;
+            try
+            {
+                var existingShortURL = _dbContext.ShortURLs.FirstOrDefault(s => s.Key == key);
+                if (existingShortURL != null)
+                {
+
+                    _dbContext.ShortURLs.Remove(existingShortURL);
+                    _dbContext.SaveChanges();
+                }
+
+                result = true;
+            }
+            catch(Exception e)
+            {
+                _logger.LogError("Failed Removing URL", e);
+            }
+
+
+            return result;
         }
     }
 }

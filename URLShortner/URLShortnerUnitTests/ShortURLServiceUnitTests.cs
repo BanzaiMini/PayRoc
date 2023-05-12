@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using URLShortner.Data;
 using URLShortner.Data.Models;
 using URLShortner.Services;
 
@@ -8,8 +11,20 @@ namespace URLShortnerUnitTests
     /// </summary>
     public class ShortURLServiceUnitTests
     {
- 
-        IShortURLService service = new ShortURLService();
+        //TODO: Moq out these dependencies
+        private static string connectionstring = "Server = (localdb)\\mssqllocaldb; Database = URLShortner; Trusted_Connection = True; MultipleActiveResultSets = true;";
+
+        private static DbContextOptionsBuilder<URLShortnerDbContext> optionsBuilder = new DbContextOptionsBuilder<URLShortnerDbContext>();
+
+        private static ILogger<ShortURLService> logger = LoggerFactory.Create(logging => logging.AddConsole()).CreateLogger<ShortURLService>();
+
+
+        static ShortURLServiceUnitTests()
+        {
+            optionsBuilder.UseSqlServer(connectionstring);
+        }
+
+        IShortURLService service = new ShortURLService(new URLShortnerDbContext(optionsBuilder.Options), logger);
 
         /// <summary>
         /// Clear down the persistent store between tests

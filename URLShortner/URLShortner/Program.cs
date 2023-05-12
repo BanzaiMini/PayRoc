@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using System;
+using URLShortner.Data;
 using URLShortner.Data.Models;
 using URLShortner.Services;
 
@@ -5,6 +8,12 @@ using URLShortner.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddDbContext<URLShortnerDbContext>(options => {
+    options.UseSqlServer(
+        builder.Configuration["ConnectionStrings:DefaultConnection"]);
+});
+
 builder.Services.AddScoped<IShortURLService, ShortURLService>();
 
 builder.Services.AddRazorPages();
