@@ -28,7 +28,9 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 // Add the manual route and handler for the short URLs
-app.Map("/{key}",async (string key,IShortURLService service) =>  {
+// Only handler URLs that match the key regular expression enforced on entry to ensure only valid
+// keys are handled
+app.Map("/{key:regex(^[a-zA-Z0-9]{{3,10}}$)}", async (string key,IShortURLService service) =>  {
     
     // Retrieve the actual URL based on the short key
     string actualURL = await service.GetURL(key);

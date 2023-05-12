@@ -36,7 +36,7 @@ namespace URLShortner.Pages
             // Check for any existing URL with the requested short url.
             if (await _service.KeyExists(ShortURL.Key))
             {
-                ModelState.AddModelError("", "The short key you have entered is not available - please try again.");
+                ModelState.AddModelError("", "The Key you have entered is not available - please try again.");
             }
 
             if (ModelState.IsValid)
@@ -51,7 +51,7 @@ namespace URLShortner.Pages
                     builder.Port = Request.Host.Port.Value;
                 }
 
-                // USe the key as the path
+                // Use the key as the path
                 builder.Path = ShortURL.Key;
                 
                 ShortURL.GeneratedURL = builder.Uri.ToString();
@@ -59,11 +59,7 @@ namespace URLShortner.Pages
 
                 await _service.AddURL(ShortURL);
             }
-            else
-            {
-                // The values entered failed validation so redisplay the page with the validation summary.
-                ModelState.AddModelError("","The values you have entered are not valid - please try again.");
-            }
+
 
             return Page();
         }
