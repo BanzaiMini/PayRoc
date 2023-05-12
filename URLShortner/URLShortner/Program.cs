@@ -1,3 +1,4 @@
+using URLShortner.Data.Models;
 using URLShortner.Services;
 
 
@@ -33,9 +34,9 @@ app.MapRazorPages();
 app.Map("/{key:regex(^[a-zA-Z0-9]{{3,10}}$)}", async (string key,IShortURLService service) =>  {
     
     // Retrieve the actual URL based on the short key
-    string actualURL = await service.GetURL(key);
+    ShortURL shortURL = await service.GetURL(key);
 
-    if (null == actualURL)
+    if (null == shortURL)
     {
         // If the short key does not exist return 404 Not Found
         return Results.NotFound();
@@ -43,7 +44,7 @@ app.Map("/{key:regex(^[a-zA-Z0-9]{{3,10}}$)}", async (string key,IShortURLServic
     else
     {
         // If the short key is found redirect to it. 
-        return Results.Redirect(actualURL);
+        return Results.Redirect(shortURL.URL);
     }
 });
 

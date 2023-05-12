@@ -28,11 +28,29 @@ namespace URLShortner.Services
             return Added;
         }
 
-        public async Task<string> GetURL(string key)
+        public async Task<ShortURL> GetURL(string key)
         {
+            ShortURL result = null;
+
             s_ShortURLMap.TryGetValue(key, out var url);
 
-            return url;
+            if (url != null)
+            {
+                result = new ShortURL
+                { 
+                  Key=key,
+                  URL = url
+                };
+
+            }
+            
+
+            return result;
+        }
+
+        public async Task<bool> RemoveURL(string key)
+        {
+            return s_ShortURLMap.Remove(key);
         }
     }
 }
