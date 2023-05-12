@@ -25,11 +25,12 @@
         </div>
         <button type="submit" class="btn btn-success float-right">Submit</button>
     </form>
-    @if (@Model.ShortURL != null)
+    @if (@Model.ShortURL != null && @Model.ShortURL.GeneratedURL != null)
     {
+        <hr />
         <div>
             <p>Your new Short URL for @Model.ShortURL.URL is:</p>
-            <p>@Model.ShortURL.GeneratedURL</p>
+            <p><a href="@Model.ShortURL.GeneratedURL" target=”_blank”>@Model.ShortURL.GeneratedURL</a></p>
         </div>
     }
 </div>

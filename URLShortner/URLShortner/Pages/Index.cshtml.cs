@@ -2,17 +2,21 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using URLShortner.Data.Models;
+using URLShortner.Services;
 
 namespace URLShortner.Pages
 {
     public class IndexModel : PageModel
     {
         private readonly ILogger<IndexModel> _logger;
+        private readonly IShortURLService    _service;
 
 
-        public IndexModel(ILogger<IndexModel> logger)
+        public IndexModel(ILogger<IndexModel> logger,
+                          IShortURLService    service)
         {
             _logger = logger;
+            _service = service;
         }
         
         /// <summary>
@@ -29,25 +33,35 @@ namespace URLShortner.Pages
 
         public async Task<IActionResult> OnPost()
         {
+            // Check for any existing URL with the requested short url.
+            if (await _service.KeyExists(ShortURL.Key))
+            {
+                ModelState.AddModelError("", "The short key you have entered is not available - please try again.");
+            }
+
             if (ModelState.IsValid)
             {
-                //TODO: Retrieve any existing URL.
-
-                ShortURL existingEntry = null;
-
-                if (existingEntry != null)
+                // Build the full Short URL
+                UriBuilder builder = new UriBuilder(Request.Scheme,
+                                                    Request.Host.Host);
+                
+                // Add the port number if using a non standard port
+                if (Request.Host.Port.HasValue)
                 {
-                    ModelState.AddModelError("", "The short URL you have entered is not available - please try again.");
+                    builder.Port = Request.Host.Port.Value;
                 }
 
-                ShortURL.GeneratedURL = Request.GetDisplayUrl() + ShortURL.Key;
+                // USe the key as the path
+                builder.Path = ShortURL.Key;
+                
+                ShortURL.GeneratedURL = builder.Uri.ToString();
+ 
 
-                //TODO: Store the ShortURL
-
+                await _service.AddURL(ShortURL);
             }
             else
             {
-                // The values entered failed validation so redisplay hte page with the validation summary.
+                // The values entered failed validation so redisplay the page with the validation summary.
                 ModelState.AddModelError("","The values you have entered are not valid - please try again.");
             }
 
