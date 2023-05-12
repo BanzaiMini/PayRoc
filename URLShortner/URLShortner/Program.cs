@@ -22,4 +22,20 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
+// Add the manual route and handler for the short URLs
+app.Map("/{key}",async (string key) =>  {
+    
+    // TODO: Retrieve the actual URL based on the short key
+    string actualURL = "https://www.microsoft.com/";
+
+    if (null == actualURL)
+    {
+        return Results.NotFound();
+    }
+    else
+    {
+        return Results.Redirect(actualURL);
+    }
+});
+
 app.Run();
